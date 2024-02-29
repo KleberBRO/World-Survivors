@@ -7,7 +7,7 @@
             "command": "gcc",
             "args": [
                 "-o",
-                "MeuProjeto.exe",
+                "WorldSurvivors.exe",
                 "CSFML_projeto/src/main.c",
                 "-I",
                 "CSFML_projeto/CSFML/include",

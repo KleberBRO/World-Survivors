@@ -8,7 +8,7 @@
 
 #define ALTURA 824
 #define LARGURA 1280
-int frames = 0;
+int frames = 0, killcount = 0;
 bool pause = true, gameover = false;
 
 typedef struct
@@ -249,10 +249,10 @@ void destroyListaBalas(ListaBalas *lista) {
 void hoverMouse(sfFloatRect *rect_play, sfSprite *sPlay, sfVector2i posMouse) {
     if (sfFloatRect_contains(rect_play, posMouse.x, posMouse.y)) {
         sfSprite_setScale(sPlay, (sfVector2f){0.4, 0.4});
-        sfSprite_setPosition(sPlay, (sfVector2f){(float)(LARGURA / 2) - 125.2, (float)(ALTURA / 2) - 115});
+        sfSprite_setPosition(sPlay, (sfVector2f){(float)(LARGURA / 2) - 115.2, (float)(ALTURA / 2) + 130});
     } else {
         sfSprite_setScale(sPlay, (sfVector2f){0.3, 0.3});
-        sfSprite_setPosition(sPlay, (sfVector2f){(float)(LARGURA / 2) - 93.9, (float)(ALTURA / 2) - 93.9});
+        sfSprite_setPosition(sPlay, (sfVector2f){(float)(LARGURA / 2) - 83.9, (float)(ALTURA / 2) + 150});
     }
     // atualiza o rect do play
     *rect_play = sfSprite_getGlobalBounds(sPlay);
@@ -392,6 +392,7 @@ void colisaoCheck(ListaBalas *listaBalas, ListaInimigos *listaInimigos, Atributo
 
         if (inimigoAtual->vida <= 0){
             destroyInimigo(listaInimigos, inimigoAtual->posicao);
+            killcount++;
         }
         
         inimigoAtual = inimigoAtual->next;
@@ -415,7 +416,7 @@ void checkGameover(AtributosPerson *player){
         player->dano--;
         
     }
-    if(player->dano<=0){
+    if(player->vida<=0){
         gameover = true;
     }
     
@@ -438,14 +439,14 @@ int main() {
     sfSprite *sPlay = sfSprite_create();
     sfSprite_setTexture(sPlay, tPlay, 0);
     sfSprite_setScale(sPlay,(sfVector2f){0.3,0.3});
-    sfSprite_setPosition(sPlay, (sfVector2f){(float)(LARGURA/2)-93.9, (float)(ALTURA/2)-93.9});
+    sfSprite_setPosition(sPlay, (sfVector2f){(float)(LARGURA/2)-93.9, (float)(ALTURA/2)+500});
     sfFloatRect rect_play = sfSprite_getGlobalBounds(sPlay);
 
     //Background do menu
-    sfTexture *tBack = sfTexture_createFromFile("CSFML_projeto/imgs/background.jpg", NULL);
+    sfTexture *tBack = sfTexture_createFromFile("CSFML_projeto/imgs/background.png", NULL);
     sfSprite *sBack = sfSprite_create();
     sfSprite_setTexture(sBack, tBack, 0);
-    sfSprite_setScale(sBack,(sfVector2f){0.75,0.75});
+    
 
 
     //mapa do jogo
@@ -470,6 +471,11 @@ int main() {
     sfText_setCharacterSize(txtTempo, 38);
     sfText_setFillColor(txtTempo, sfWhite);
 
+    sfText *txtPontuacao = sfText_create();
+    sfText_setFont(txtPontuacao, fonte);
+    sfText_setCharacterSize(txtPontuacao, 38);
+    sfText_setFillColor(txtPontuacao, sfWhite);
+
     //personagem
     AtributosPerson player = {0,3,1,10,3200,2060,0,0,30,38};
     sfTexture *tSprites = sfTexture_createFromFile("CSFML_projeto/imgs/personagem.png", NULL);
@@ -478,6 +484,8 @@ int main() {
     sfSprite_scale(sPlayer, (sfVector2f){2,2});
     sfSprite_setTextureRect(sPlayer, player.tRect);
     sfSprite_setPosition(sPlayer, player.posicao);
+
+    //tela game over
 
     //Criaçao da lista de inimigos
     ListaInimigos listaInimigos;
@@ -502,7 +510,7 @@ int main() {
     int qntd_inimigos, spawn_inimigos = 0, cooldownBala = 0, direcaoBala = 0;
 
 //******************************Inicio do Jogo**************************//
-    while (sfRenderWindow_isOpen(window)) {
+    while (sfRenderWindow_isOpen(window) && !gameover) {
         sfEvent event;
         sfVector2i posMouse = sfMouse_getPositionRenderWindow(window);
 
@@ -586,6 +594,10 @@ int main() {
         sfText_setString(txtTempo, timeString);
         sfText_setPosition(txtTempo, (sfVector2f){player.posicao.x, player.posicao.y-ALTURA/2.2});
 
+        sprintf(timeString, "Pontuacao: %i", killcount);
+        sfText_setString(txtPontuacao, timeString);
+        sfText_setPosition(txtPontuacao, (sfVector2f){player.posicao.x-(LARGURA/2.2), player.posicao.y-ALTURA/2.2});
+
         sfRenderWindow_setView(window, view);
         sfRenderWindow_clear(window, sfBlack);
 
@@ -601,6 +613,11 @@ int main() {
             renderBalas(&listaBalas, window);
         }
         sfRenderWindow_drawText(window, txtTempo, NULL);
+        sfRenderWindow_drawText(window, txtPontuacao, NULL);
+        sprintf(timeString, "Vida: %i", player.vida);
+        sfText_setString(txtPontuacao, timeString);
+        sfText_setPosition(txtPontuacao, (sfVector2f){player.posicao.x-(LARGURA/2.2), player.posicao.y+ALTURA/2.2});
+        sfRenderWindow_drawText(window, txtPontuacao, NULL);
 
         sfRenderWindow_display(window);
 
@@ -611,6 +628,7 @@ int main() {
     sfClock_destroy(clock);
     sfFont_destroy(fonte);
     sfText_destroy(txtTempo);
+    sfText_destroy(txtPontuacao);
     sfSound_destroy(projetilSound);
     sfSoundBuffer_destroy(bufferP);
     sfSound_destroy(HitSound);
@@ -623,7 +641,7 @@ int main() {
     
     sfTexture_destroy(tBack);
     sfTexture_destroy(tMapa);
-    sfTexture_destroy(sMapa);
+    sfSprite_destroy(sMapa);
     sfTexture_destroy(tSprites);
     destroyListaBalas(&listaBalas);
     sfSprite_destroy(sBack);
