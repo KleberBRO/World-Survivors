@@ -1,0 +1,28 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-o",
+                "MeuProjeto.exe",
+                "CSFML_projeto/src/main.c",
+                "-I",
+                "CSFML_projeto/CSFML/include",
+                "-L",
+                "CSFML_projeto/CSFML/lib/gcc",
+                "-lcsfml-graphics",
+                "-lcsfml-window",
+                "-lcsfml-audio",
+                "-lcsfml-system"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
+
