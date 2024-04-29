@@ -1,4 +1,4 @@
-Esse é um projeto que eu usei mais para aprender a programar em C, e a usar o CSFMl pretendo continuar aprimorando. Esse jogo foi inspirado em Vampire Survivors.
+Esse é um projeto que eu usei para aprender a programar em C, e a usar a biblioteca, CSFMl. Pretendo continuar atualizando o jogo. Esse jogo foi inspirado em Vampire Survivors.
 
 ainda quero implementar:
 -Sistema de nivel
